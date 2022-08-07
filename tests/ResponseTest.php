@@ -304,9 +304,11 @@ class ResponseTest extends TestCase
         $trap = 0;
         $lazyProp = new LazyProp(function () use (&$access, &$trap) {
             $access++;
+
             return [
                 'prop' => new LazyProp(function () use (&$access) {
                     $access++;
+
                     return 'A lazy value';
                 }),
                 'another' => new LazyProp(function () use (&$trap) {
@@ -322,6 +324,7 @@ class ResponseTest extends TestCase
                 }),
                 'another' => new LazyProp(function () use (&$access) {
                     $access++;
+
                     return 'Another lazy value';
                 }),
             ];
@@ -345,7 +348,6 @@ class ResponseTest extends TestCase
                 'another' => 'Another lazy value',
             ],
         ])), $page->props);
-
     }
 
     public function test_resolve_only(): void
