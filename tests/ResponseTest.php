@@ -325,7 +325,7 @@ class ResponseTest extends TestCase
             return [
                 'prop' => $trapLazy,
                 'another' => $expectedLazy,
-                'leafNode' => 'ok'
+                'leafNode' => 'ok',
             ];
         };
 
@@ -342,7 +342,7 @@ class ResponseTest extends TestCase
             ],
             'nonLazy' => [
                 'another' => 'A lazy value',
-                'leafNode' => 'ok'
+                'leafNode' => 'ok',
             ],
         ])), $page->props);
 
@@ -359,7 +359,7 @@ class ResponseTest extends TestCase
             'baz',
             '.baz..foo.bar.',
             'foo.bar.baz',
-            'foo'
+            'foo',
         ]);
 
         $this->assertEquals(new OnlyNode([
