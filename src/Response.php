@@ -88,7 +88,7 @@ class Response implements Responsable
     {
         $only = array_filter(explode(',', $request->header('X-Inertia-Partial-Data', '')));
 
-        $props = $this->resolvePropertyInstances($this->props, $request, true, $this->resolveOnly($only));
+        $props = $this->resolvePropertyInstances($this->props, $request, $this->resolveOnly($only));
 
         $page = [
             'component' => $this->component,
@@ -104,7 +104,7 @@ class Response implements Responsable
         return ResponseFactory::view($this->rootView, $this->viewData + ['page' => $page]);
     }
 
-    public function resolveOnly($only)
+    public function resolveOnly($only): OnlyNode
     {
         // Inspired from js unflatten https://stackoverflow.com/a/59787588/2977175
         $result = new OnlyNode([], empty($only));
@@ -132,11 +132,11 @@ class Response implements Responsable
      * @param  bool  $unpackDotProps
      * @return array
      */
-    public function resolvePropertyInstances(array $props, Request $request, bool $unpackDotProps = true, OnlyNode $only = null): array
+    public function resolvePropertyInstances(array $props, Request $request, OnlyNode $only, bool $unpackDotProps = true): array
     {
+        $isWildcard = isset($only['*']);
         foreach ($props as $key => $value) {
-            if ((! $only->isLeaf() && ! isset($only[$key]))
-                || (! isset($only[$key]) && $value instanceof LazyProp)) {
+            if (! isset($only[$key]) && ! $isWildcard && (! $only->isLeaf() || $value instanceof LazyProp)) {
                 unset($props[$key]);
                 continue;
             }
@@ -162,7 +162,7 @@ class Response implements Responsable
             }
 
             if (is_array($value)) {
-                $value = $this->resolvePropertyInstances($value, $request, false, $only[$key] ?? new OnlyNode([], true));
+                $value = $this->resolvePropertyInstances($value, $request, $only[$key] ?? new OnlyNode($isWildcard ? ['*' => ''] : [], true), false);
             }
 
             if ($unpackDotProps && str_contains($key, '.')) {
